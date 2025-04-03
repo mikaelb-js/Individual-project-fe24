@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "description": "a web site presenting various organisations.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
     "test": "jest"
   },
   "repository": {
@@ -19,5 +23,20 @@
   "bugs": {
     "url": "https://github.com/mikaelb-js/Individual-project-fe24/issues"
   },
-  "homepage": "https://github.com/mikaelb-js/Individual-project-fe24#readme"
+  "homepage": "https://github.com/mikaelb-js/Individual-project-fe24#readme",
+  "dependencies": {
+    "@tanstack/react-router": "^1.114.34",
+    "@tanstack/react-start": "^1.114.34",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "vinxi": "^0.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.8.2",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
 }
