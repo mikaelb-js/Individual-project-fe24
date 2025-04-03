@@ -1,0 +1,23 @@
+{
+  "name": "individual-project-fe24",
+  "version": "0.1.0",
+  "description": "a web site presenting various organisations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikaelb-js/Individual-project-fe24.git"
+  },
+  "keywords": [
+    "organisations",
+    "tanstack"
+  ],
+  "author": "Mikael B",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikaelb-js/Individual-project-fe24/issues"
+  },
+  "homepage": "https://github.com/mikaelb-js/Individual-project-fe24#readme"
+}
