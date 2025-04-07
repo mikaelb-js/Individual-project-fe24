@@ -134,3 +134,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+drizzle/
+!drizzle/.keepfolder-in-git
+.output/
+.vinxi/
+postgres.env
+app/routeTree.gen.ts
