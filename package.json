@@ -9,10 +9,10 @@
     "build": "vinxi build",
     "start": "vinxi start",
     "test:ui": "jest --config jest.config.dom.ts",
-    "test:api": "jest --config jest.config.node.ts",
+    "test:api": "jest --config jest.config.node.ts --detectOpenHandles",
     "test": "npm run test:ui && npm run test:api",
-    "db:generate": "drizzle-kit generate:pg",
-    "db:push": "drizzle-kit push:pg",
+    "db:gen": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
     "db:migrate": "tsx app/lib/server/migrate.ts"
   },
   "repository": {
