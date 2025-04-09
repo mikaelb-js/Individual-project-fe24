@@ -7,9 +7,24 @@
         "skipLibCheck": true,
         "strict": true,
         "strictNullChecks": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./*"
+            ],
+            "@app/*": [
+                "./app/*"
+            ],
+            "@lib/*": [
+                "./app/lib/*"
+            ],
+            "@server/*": [
+                "./app/lib/server/*"
+            ]
+        }
     },
     "exclude": [
         "node_modules"
-    ]
+    ],
 }
