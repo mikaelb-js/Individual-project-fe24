@@ -26,7 +26,7 @@ async function dropTables(db: any) {
     await db.execute(sql`
         DROP TABLE IF EXISTS items CASCADE;
         DROP TABLE IF EXISTS _journal CASCADE;
-        DROP TABLE IF EXISTS organizations CASCADE;
+        DROP TABLE IF EXISTS organisations CASCADE;
     `);
     console.log('Tables dropped successfully');
 }
