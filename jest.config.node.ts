@@ -8,13 +8,21 @@ const config: Config = {
     moduleNameMapper: {
         '^@/lib/(.*)$': '<rootDir>/app/lib/$1',
         '^@/app/(.*)$': '<rootDir>/app/$1',
+        '^(\\.{1,2}/.*)\\.js$': '$1',
     },
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],
     collectCoverage: false,
     coverageDirectory: 'coverage',
     extensionsToTreatAsEsm: ['.ts'],
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', { useESM: true }]
+        '^.+\\.tsx?$': ['ts-jest', { useESM: true, tsconfig: 'tsconfig.json' }]
+    },
+    verbose: true,
+    testTimeout: 10000,
+    globals: {
+        'ts-jest': {
+            useESM: true,
+        }
     }
 }
 
