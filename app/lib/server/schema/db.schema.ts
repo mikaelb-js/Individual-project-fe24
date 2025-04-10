@@ -44,7 +44,7 @@ export const organisations = pgTable('organisations', {
 
 export const partners = pgTable('partners', {
     id: uuid('id').primaryKey().defaultRandom(),
-    organizationId: varchar('organization_id').references(() => organisations.id),
+    organizasionId: varchar('organisation_id').references(() => organisations.id),
     name: text('name').notNull(),
     partnerType: text('partner_type').notNull().$type<'financialPartners' | 'technicalPartners' | 'initiatingPartners'>(),
     category: text('category'),
