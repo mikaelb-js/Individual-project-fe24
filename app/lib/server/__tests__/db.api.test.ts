@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, afterEach } from '@jest/glob
 import db from '../db';
 import { organisations } from '../schema/db.schema';
 import { eq } from 'drizzle-orm';
-import { setupTestDatabase, cleanupTestDatabase } from './setup';
+import { setupTestDatabase, cleanupTestDatabase } from './db.setup.helper';
 
 describe('Database operations tests', () => {
     beforeAll(async () => {
