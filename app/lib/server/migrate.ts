@@ -6,6 +6,8 @@ import * as schema from './schema';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import { readMigrationFiles } from 'drizzle-orm/migrator';
+import fs from 'fs/promises';
+import path from 'path';
 
 const POSTGRES_CONNECTION = process.env.POSTGRES_DB_URL!;
 const DB_CONNECTION = process.env.POSTGRES_URL!;
@@ -53,6 +55,52 @@ async function ensureMigrationFolders() {
         await mkdir(metaFolder, { recursive: true });
     } catch (error) {
         // Ignore errors
+    }
+}
+
+async function resetMigrationJournal() {
+    console.log('Checking migration journal status...');
+
+    const sql = postgres(DB_CONNECTION);
+    try {
+        // Check if the journal table exists
+        const journalExists = await sql`
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables 
+                WHERE table_schema = 'drizzle' 
+                AND table_name = '__drizzle_migrations'
+            ) as exists
+        `;
+
+        if (journalExists[0].exists) {
+            // Check what migrations have been applied
+            const appliedMigrations = await sql`SELECT * FROM drizzle.__drizzle_migrations`;
+
+            if (appliedMigrations.length > 0) {
+                console.log(`Found ${appliedMigrations.length} applied migrations in journal`);
+
+                // Check if tables actually exist
+                const tables = await sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
+                const tableNames = tables.map(t => t.tablename);
+
+                // Expected tables from schema
+                const expectedTables = ['organisations', 'partners'];
+                const missingTables = expectedTables.filter(t => !tableNames.includes(t));
+
+                if (missingTables.length > 0) {
+                    console.log(`Migration journal shows completed migrations but ${missingTables.length} tables are missing`);
+                    console.log('Resetting migration journal to fix inconsistency...');
+
+                    // Reset the journal to force migrations to run again
+                    await sql`TRUNCATE drizzle.__drizzle_migrations`;
+                    console.log('Migration journal reset successfully');
+                }
+            }
+        }
+    } catch (error) {
+        console.warn('Error checking migration journal:', error);
+    } finally {
+        await sql.end();
     }
 }
 
@@ -122,6 +170,7 @@ async function main() {
     try {
         await ensureDatabaseExists();
         await ensureMigrationFolders();
+        await resetMigrationJournal(); // Add this
         await runMigrations();
     } catch (error) {
         console.error('Migration process failed:', error);
