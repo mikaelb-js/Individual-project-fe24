@@ -5,6 +5,7 @@ import '@dotenvx/dotenvx/config';
 import * as schema from './schema';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
+import { readMigrationFiles } from 'drizzle-orm/migrator';
 
 const POSTGRES_CONNECTION = process.env.POSTGRES_DB_URL!;
 const DB_CONNECTION = process.env.POSTGRES_URL!;
@@ -60,12 +61,41 @@ async function runMigrations() {
     const db = drizzle(sql, { schema });
 
     try {
+        // Debug: List migration files that will be applied
+        console.log('Reading migration files...');
+        const migrations = readMigrationFiles({ migrationsFolder: MIGRATIONS });
+        console.log(`Found ${migrations.length} migration file(s):`);
+        migrations.forEach((migration, i) => {
+            console.log(`${i + 1}. Hash: ${migration.hash}`);
+            console.log(`   SQL statements: ${migration.sql.length}`);
+            if (process.env.DEBUG === 'true') {
+                console.log('   SQL content:');
+                migration.sql.forEach((stmt, j) => console.log(`     ${j + 1}. ${stmt.substring(0, 80)}...`));
+            }
+        });
+
+        // Debug: Check for existing tables before migration
+        const tablesBefore = await sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
+        console.log('Tables before migration:', tablesBefore.map(t => t.tablename));
+
+        // Run migrations
         console.log('Running migrations...');
         await migrate(db, { migrationsFolder: MIGRATIONS });
 
-        // Verify tables were created
+        // Debug: Check for tables after migration
         const tables = await sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
         console.log('Tables after migration:', tables.map(t => t.tablename));
+
+        // Compare before and after
+        const newTables = tables
+            .filter(t => !tablesBefore.some(tb => tb.tablename === t.tablename))
+            .map(t => t.tablename);
+
+        if (newTables.length > 0) {
+            console.log(`✅ Migration created ${newTables.length} new tables: ${newTables.join(', ')}`);
+        } else {
+            console.log('⚠️ No new tables were created by the migration');
+        }
 
         console.log('Migrations complete!');
     } catch (error: unknown) {
