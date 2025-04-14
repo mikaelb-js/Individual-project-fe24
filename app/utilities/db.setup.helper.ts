@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import 'dotenv/config';
+import * as schema from '../lib/server/schema';
 
 if (!process.env.POSTGRES_URL) {
     throw new Error('POSTGRES_URL environment variable not set');
@@ -10,8 +10,9 @@ const sql = postgres(process.env.POSTGRES_URL);
 const db = drizzle(sql);
 
 export async function setupTestDatabase() {
-    // Drop and recreate the organisations table
     await sql`DROP TABLE IF EXISTS organisations CASCADE`;
+    await sql`DROP TABLE IF EXISTS partners CASCADE`;
+
     await sql`
         CREATE TABLE organisations (
             id VARCHAR PRIMARY KEY,
@@ -28,11 +29,24 @@ export async function setupTestDatabase() {
             voices_about JSONB
         );
     `;
+
+    await sql`
+        CREATE TABLE partners (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            organisation_id VARCHAR REFERENCES organisations(id),
+            name TEXT NOT NULL,
+            partner_type TEXT NOT NULL,
+            category TEXT,
+            description TEXT
+        );
+    `;
+
+    console.log('Test database setup complete');
 }
 
 export async function cleanupTestDatabase() {
-    // Clean out data, keep table structure
     await sql`TRUNCATE TABLE organisations CASCADE`;
+    await sql`TRUNCATE TABLE partners CASCADE`;
 }
 
 export function createTestOrg(overrides = {}) {
