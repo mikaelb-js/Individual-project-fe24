@@ -1,13 +1,12 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import { readMigrationFiles } from 'drizzle-orm/migrator';
 import postgres from 'postgres';
 import '@dotenvx/dotenvx/config';
 import * as schema from './schema';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
-import { readMigrationFiles } from 'drizzle-orm/migrator';
-import fs from 'fs/promises';
-import path from 'path';
+
 
 const POSTGRES_CONNECTION = process.env.POSTGRES_DB_URL!;
 const DB_CONNECTION = process.env.POSTGRES_URL!;
@@ -24,7 +23,7 @@ async function ensureDatabaseExists() {
     const sql = postgres(POSTGRES_CONNECTION);
 
     try {
-        // database exists?
+        // database exists in PostgreSQL?
         console.log('Checking if organisationsDB exists...');
         const dbExists = await sql`
             SELECT EXISTS (
@@ -51,6 +50,7 @@ async function ensureDatabaseExists() {
 async function ensureMigrationFolders() {
     const metaFolder = join(MIGRATIONS, 'meta');
     try {
+        // recursive: indicates whether parent folders should be created.
         await mkdir(MIGRATIONS, { recursive: true });
         await mkdir(metaFolder, { recursive: true });
     } catch (error) {
@@ -63,7 +63,7 @@ async function resetMigrationJournal() {
 
     const sql = postgres(DB_CONNECTION);
     try {
-        // Check if the journal table exists
+        // Check if the journal table exists in PostgreSQL
         const journalExists = await sql`
             SELECT EXISTS (
                 SELECT 1 FROM information_schema.tables 
@@ -73,17 +73,17 @@ async function resetMigrationJournal() {
         `;
 
         if (journalExists[0].exists) {
-            // Check what migrations have been applied
+            // applied migrations
             const appliedMigrations = await sql`SELECT * FROM drizzle.__drizzle_migrations`;
 
             if (appliedMigrations.length > 0) {
                 console.log(`Found ${appliedMigrations.length} applied migrations in journal`);
 
-                // Check if tables actually exist
+                // tables actually exist
                 const tables = await sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
                 const tableNames = tables.map(t => t.tablename);
 
-                // Expected tables from schema
+                // Expected tables according to schema
                 const expectedTables = ['organisations', 'partners'];
                 const missingTables = expectedTables.filter(t => !tableNames.includes(t));
 
@@ -109,8 +109,9 @@ async function runMigrations() {
     const db = drizzle(sql, { schema });
 
     try {
-        // Debug: List migration files that will be applied
+        // migration files that will be applied
         console.log('Reading migration files...');
+        //drizzle-orm function:
         const migrations = readMigrationFiles({ migrationsFolder: MIGRATIONS });
         console.log(`Found ${migrations.length} migration file(s):`);
         migrations.forEach((migration, i) => {
@@ -122,19 +123,19 @@ async function runMigrations() {
             }
         });
 
-        // Debug: Check for existing tables before migration
+        // existing tables
         const tablesBefore = await sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
         console.log('Tables before migration:', tablesBefore.map(t => t.tablename));
 
-        // Run migrations
+        // run migrations
         console.log('Running migrations...');
         await migrate(db, { migrationsFolder: MIGRATIONS });
 
-        // Debug: Check for tables after migration
+        // tables after migration
         const tables = await sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
         console.log('Tables after migration:', tables.map(t => t.tablename));
 
-        // Compare before and after
+        // compare before and after
         const newTables = tables
             .filter(t => !tablesBefore.some(tb => tb.tablename === t.tablename))
             .map(t => t.tablename);
@@ -161,7 +162,6 @@ async function runMigrations() {
             throw error;
         }
     } finally {
-        // Always need this to close the connection
         await sql.end();
     }
 }

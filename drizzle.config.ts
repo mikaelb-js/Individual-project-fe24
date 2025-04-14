@@ -1,5 +1,5 @@
 import type { Config } from 'drizzle-kit';
-import '@dotenvx/dotenvx/config';
+//import '@dotenvx/dotenvx/config';
 
 export default {
     out: './drizzle/migrations',
