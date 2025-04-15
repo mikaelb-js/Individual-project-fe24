@@ -16,7 +16,8 @@
     "db:init": "rm -rf drizzle/migrations && mkdir -p drizzle/migrations/meta && echo '{\"version\":\"5\",\"entries\":[]}' > drizzle/migrations/meta/_journal.json",
     "db:gen": "drizzle-kit generate",
     "db:migrate": "tsx app/lib/server/migrate.ts",
-    "db:reset": "npm run db:init && npm run db:gen && npm run db:migrate"
+    "db:reset": "npm run db:init && npm run db:gen && npm run db:migrate",
+    "db:seed": "tsx --require tsconfig-paths/register app/lib/server/seed.ts"
   },
   "repository": {
     "type": "git",
