@@ -1,4 +1,5 @@
-export interface Office {
+// Proper types
+interface Office {
     contact: string;
     phone: string;
     email: string;
@@ -6,46 +7,60 @@ export interface Office {
     postalAddress: string;
     visitingAddress: string;
 }
-
-export interface Contact {
+interface Contact {
+    orgId: string;
     name: string;
     phone: string;
     email: string;
     postalAddress: string;
 }
-
-export interface RegionOfOperations {
-    areas: string[];
-    description: string;
+interface RegionOfOperations {
+    'country/union/region': string;
 }
-
-export interface ContentSection {
+interface ContentItem {
     title: string;
     'body-content': string;
 }
-
-export interface Voice {
+interface OperationCategory {
+    [category: string]: Array<{
+        title: string;
+        'body-content': string;
+    }>;
+}
+interface Quote {
     quote: string;
     author: string;
 }
-
-export interface Organisation {
-    name: string;
-    url: string;
-    office: Office;
-    contact: Contact[];
-    regionOfOperations: RegionOfOperations;
-    about: ContentSection[];
-    mainAchievements: ContentSection[];
-    operations: ContentSection[];
-    engagement: ContentSection[];
-    voicesAbout: Voice[];
+interface PartnerGroup {
+    category: string;
+    partners: string[];
 }
-
-export interface OrganisationData {
+export interface Partners {
+    description?: string;
+    financialPartners?: string[];
+    technicalPartners?: PartnerGroup[];
+    initiatingPartners?: string[];
+}
+export interface Organisation {
+    id?: string;
+    name: string;
+    url?: string;
+    office?: Office;
+    contacts?: Contact[];
+    regionOfOperations?: RegionOfOperations;
+    about?: ContentItem[];
+    mainAchievements?: ContentItem[];
+    operations?: OperationCategory[];
+    engagement?: ContentItem[];
+    voicesAbout?: Quote[];
+    partners?: Partners;
+}
+interface CategoryData {
+    partners?: Partners;
+    [orgId: string]: Organisation | Partners | undefined;
+}
+export interface JsonData {
     categories: {
-        [category: string]: {
-            [orgId: string]: Organisation;
-        };
+        [category: string]: CategoryData;
     };
 }

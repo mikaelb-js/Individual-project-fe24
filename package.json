@@ -9,16 +9,15 @@
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
+    "jest": "jest --detectOpenHandles",
     "test:ui": "jest --config jest.config.dom.ts",
-    "test:api": "npm run db:reset && jest --config jest.config.node.ts --runInBand",
+    "test:api": "jest --config jest.config.node.ts",
     "test": "npm run test:ui && npm run test:api",
+    "db:init": "rm -rf drizzle/migrations && mkdir -p drizzle/migrations/meta && echo '{\"version\":\"5\",\"entries\":[]}' > drizzle/migrations/meta/_journal.json",
     "db:gen": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
-    "db:migrate": "tsx --require tsconfig-paths/register app/lib/server/migrate.ts",
-    "db:init": "rm -rf drizzle/*.sql && mkdir -p drizzle/migrations/meta && echo '{\"version\":\"5\",\"entries\":[]}' > drizzle/migrations/meta/_journal.json",
+    "db:migrate": "tsx app/lib/server/migrate.ts",
     "db:reset": "npm run db:init && npm run db:gen && npm run db:migrate",
-    "db:seed": "tsx --require tsconfig-paths/register app/lib/server/seed.ts",
-    "db:full-reset": "npm run db:reset && npm run db:seed"
+    "db:seed": "tsx --require tsconfig-paths/register app/lib/server/seed.ts"
   },
   "repository": {
     "type": "git",

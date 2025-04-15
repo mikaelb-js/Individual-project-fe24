@@ -1,8 +1,8 @@
 import type { Config } from 'drizzle-kit';
-import '@dotenvx/dotenvx/config';
+//import '@dotenvx/dotenvx/config';
 
 export default {
-    out: './drizzle',
+    out: './drizzle/migrations',
     schema: './app/lib/server/schema/db.schema.ts',
     breakpoints: true,
     verbose: true,
@@ -10,6 +10,6 @@ export default {
     dialect: 'postgresql',
     casing: 'snake_case',
     dbCredentials: {
-        url: process.env.POSTGRES_URL!,
+        url: process.env.POSTGRES_DB_URL!,
     }
 } satisfies Config;

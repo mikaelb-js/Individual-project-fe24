@@ -2,7 +2,6 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import '@dotenvx/dotenvx/config';
 
-//console.log(process.env.POSTGRES_URL);
 /* if (!process.env.POSTGRES_URL) {
     throw new Error('process.env.POSTGRES_URL is undefined')
 } */

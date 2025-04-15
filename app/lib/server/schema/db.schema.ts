@@ -1,5 +1,11 @@
 import { pgTable, text, uuid, jsonb, varchar } from 'drizzle-orm/pg-core';
 
+/* 
+I want to have database schema in my TypeScript codebase, I don’t wanna deal with SQL migration files.
+I want Drizzle to “push” my schema directly to the database
+
+That’s a codebase first approach. You have your TypeScript Drizzle schema as a source of truth and Drizzle let’s you push schema changes to the database using drizzle-kit push command.
+*/
 export const organisations = pgTable('organisations', {
     id: varchar('id').primaryKey(),
     category: text('category').notNull(),
@@ -13,15 +19,16 @@ export const organisations = pgTable('organisations', {
         postalAddress: string;
         visitingAddress: string;
     }>(),
-    contact: jsonb('contact').$type<Array<{
+    // Match JSON field name (plural)
+    contacts: jsonb('contacts').$type<Array<{
+        orgId: string;
         name: string;
         phone: string;
         email: string;
         postalAddress: string;
     }>>(),
     regionOfOperations: jsonb('region_of_operations').$type<{
-        areas: string[];
-        description: string;
+        'country/union/region': string;
     }>(),
     about: jsonb('about').$type<Array<{
         title: string;
@@ -31,7 +38,13 @@ export const organisations = pgTable('organisations', {
         title: string;
         'body-content': string;
     }>>(),
-    operations: jsonb('operations'),
+    // Structure to match your complex operations data
+    operations: jsonb('operations').$type<Array<{
+        [categoryName: string]: Array<{
+            title: string;
+            'body-content': string;
+        }>;
+    }>>(),
     engagement: jsonb('engagement').$type<Array<{
         title: string;
         'body-content': string;
@@ -44,7 +57,7 @@ export const organisations = pgTable('organisations', {
 
 export const partners = pgTable('partners', {
     id: uuid('id').primaryKey().defaultRandom(),
-    organizasionId: varchar('organisation_id').references(() => organisations.id),
+    organisationId: varchar('organisation_id').references(() => organisations.id),
     name: text('name').notNull(),
     partnerType: text('partner_type').notNull().$type<'financialPartners' | 'technicalPartners' | 'initiatingPartners'>(),
     category: text('category'),

@@ -19,11 +19,6 @@ const config: Config = {
     },
     verbose: true,
     testTimeout: 10000,
-    globals: {
-        'ts-jest': {
-            useESM: true,
-        }
-    }
 }
 
 export default config;
