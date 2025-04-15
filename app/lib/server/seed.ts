@@ -7,6 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { count } from 'drizzle-orm';
+import { JsonData, Organisation, Partners } from '@/app/types/organisations';
 
 // Database connection
 const DB_CONNECTION = process.env.POSTGRES_URL!;
@@ -15,85 +16,6 @@ if (!DB_CONNECTION) {
     console.error('Error: Database connection string not found in environment');
     process.exit(1);
 }
-
-// Proper types
-interface Office {
-    contact: string;
-    phone: string;
-    email: string;
-    url: string;
-    postalAddress: string;
-    visitingAddress: string;
-}
-
-interface Contact {
-    orgId: string;
-    name: string;
-    phone: string;
-    email: string;
-    postalAddress: string;
-}
-
-interface RegionOfOperations {
-    'country/union/region': string;
-}
-
-interface ContentItem {
-    title: string;
-    'body-content': string;
-}
-
-interface OperationCategory {
-    [category: string]: Array<{
-        title: string;
-        'body-content': string;
-    }>;
-}
-
-interface Quote {
-    quote: string;
-    author: string;
-}
-
-interface PartnerGroup {
-    category: string;
-    partners: string[];
-}
-
-interface Partners {
-    description?: string;
-    financialPartners?: string[];
-    technicalPartners?: PartnerGroup[];
-    initiatingPartners?: string[];
-}
-
-interface Organisation {
-    id?: string;
-    name: string;
-    url?: string;
-    office?: Office;
-    contacts?: Contact[];
-    regionOfOperations?: RegionOfOperations;
-    about?: ContentItem[];
-    mainAchievements?: ContentItem[];
-    operations?: OperationCategory[];
-    engagement?: ContentItem[];
-    voicesAbout?: Quote[];
-    partners?: Partners;
-}
-
-// Alternative approach: Be explicit about what partners can be
-interface CategoryData {
-    partners?: Partners;
-    [orgId: string]: Organisation | Partners | undefined;  // Added undefined
-}
-
-interface JsonData {
-    categories: {
-        [category: string]: CategoryData;
-    };
-}
-
 
 async function seedDatabase(): Promise<void> {
     console.log('Starting database seed...');
@@ -133,7 +55,7 @@ async function seedDatabase(): Promise<void> {
 
         console.log('Seeding organisations...');
 
-        // Extract and transform
+        // hold organisation and partner records
         const organisationsData: typeof organisations.$inferInsert[] = [];
         const partnersData: typeof partners.$inferInsert[] = [];
 
@@ -171,13 +93,11 @@ async function seedDatabase(): Promise<void> {
                     organisationsData.push(orgRecord);
                     await tx.insert(organisations).values(orgRecord);
 
-                    // Process org-level partners
                     if (orgData.partners) {
                         await processPartners(tx, orgData.partners, orgId, partnersData);
                     }
                 }
 
-                // Process any partners
                 if (jsonData.categories[category].partners) {
                     for (const orgKey in jsonData.categories[category]) {
                         if (orgKey !== 'partners') {
@@ -187,8 +107,6 @@ async function seedDatabase(): Promise<void> {
                             if (data) {
                                 if ('name' in data) {
                                     const orgData = data as Organisation;
-
-                                    // Find matching inserted organisation
                                     const insertedOrg = organisationsData.find(o => o.name === orgData.name);
                                     if (insertedOrg) {
                                         await processPartners(
