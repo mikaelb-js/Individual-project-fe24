@@ -7,7 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { count } from 'drizzle-orm';
-import { JsonData, Organisation, Partners } from '@/app/types/organisations';
+import { JsonData, Organisation, Partners } from '@/app/types/organisation';
 
 // Database connection
 const DB_CONNECTION = process.env.POSTGRES_URL!;
@@ -65,21 +65,18 @@ async function seedDatabase(): Promise<void> {
                 for (const key in jsonData.categories[category]) {
                     // is a partner entry?
                     if (key === 'partners') {
-                        // Handle partners at category level
                         continue;
                     }
 
-                    // Now we know it's an organization
                     const orgData = jsonData.categories[category][key] as Organisation;
                     const orgId = randomUUID();
 
-                    // Add organisation using type inference from schema
+                    // type inference from schema
                     const orgRecord: typeof organisations.$inferInsert = {
                         id: orgId,
                         category: category,
                         name: orgData.name,
                         url: orgData.url || null,
-                        // Use the schema's expected types directly
                         office: orgData.office || null,
                         contacts: orgData.contacts || null,
                         regionOfOperations: orgData.regionOfOperations || null,

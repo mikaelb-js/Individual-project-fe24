@@ -50,7 +50,7 @@ async function ensureDatabaseExists() {
 async function ensureMigrationFolders() {
     const metaFolder = join(MIGRATIONS, 'meta');
     try {
-        // recursive: indicates whether parent folders should be created.
+        // parent folders should be created.
         await mkdir(MIGRATIONS, { recursive: true });
         await mkdir(metaFolder, { recursive: true });
     } catch (error) {
@@ -63,7 +63,7 @@ async function resetMigrationJournal() {
 
     const sql = postgres(DB_CONNECTION);
     try {
-        // Check if the journal table exists in PostgreSQL
+        // exists in PostgreSQL
         const journalExists = await sql`
             SELECT EXISTS (
                 SELECT 1 FROM information_schema.tables 
@@ -73,7 +73,6 @@ async function resetMigrationJournal() {
         `;
 
         if (journalExists[0].exists) {
-            // applied migrations
             const appliedMigrations = await sql`SELECT * FROM drizzle.__drizzle_migrations`;
 
             if (appliedMigrations.length > 0) {
@@ -156,7 +155,7 @@ async function runMigrations() {
             try {
                 const tables = await sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
                 console.log('Existing tables:', tables.map(t => t.tablename));
-            } catch {/* ignore */ }
+            } catch {/* ignore errors */ }
         } else {
             console.error('Migration error:', error);
             throw error;
@@ -170,7 +169,7 @@ async function main() {
     try {
         await ensureDatabaseExists();
         await ensureMigrationFolders();
-        await resetMigrationJournal(); // Add this
+        await resetMigrationJournal();
         await runMigrations();
     } catch (error) {
         console.error('Migration process failed:', error);

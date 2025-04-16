@@ -44,6 +44,7 @@ export interface Partners {
 export interface Organisation {
     id?: string;
     name: string;
+    category: string;
     url?: string;
     office?: Office;
     contacts?: Contact[];

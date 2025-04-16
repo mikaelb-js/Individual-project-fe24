@@ -1,10 +1,11 @@
 import { pgTable, text, uuid, jsonb, varchar } from 'drizzle-orm/pg-core';
 
 /* 
-I want to have database schema in my TypeScript codebase, I don’t wanna deal with SQL migration files.
-I want Drizzle to “push” my schema directly to the database
+Option 2:
+"I want to have database schema in my TypeScript codebase, I don’t wanna deal with SQL migration files. I want Drizzle to “push” my schema directly to the database
 
-That’s a codebase first approach. You have your TypeScript Drizzle schema as a source of truth and Drizzle let’s you push schema changes to the database using drizzle-kit push command.
+That’s a codebase first approach. You have your TypeScript Drizzle schema as a source of truth and Drizzle let’s you push schema changes to the database using drizzle-kit push command.""
+https://orm.drizzle.team/docs/migrations
 */
 export const organisations = pgTable('organisations', {
     id: varchar('id').primaryKey(),
@@ -19,7 +20,6 @@ export const organisations = pgTable('organisations', {
         postalAddress: string;
         visitingAddress: string;
     }>(),
-    // Match JSON field name (plural)
     contacts: jsonb('contacts').$type<Array<{
         orgId: string;
         name: string;
@@ -38,7 +38,6 @@ export const organisations = pgTable('organisations', {
         title: string;
         'body-content': string;
     }>>(),
-    // Structure to match your complex operations data
     operations: jsonb('operations').$type<Array<{
         [categoryName: string]: Array<{
             title: string;
@@ -63,3 +62,9 @@ export const partners = pgTable('partners', {
     category: text('category'),
     description: text('description')
 });
+
+// Type definitions
+export type Organisation = typeof organisations.$inferSelect;
+export type Partner = typeof partners.$inferSelect;
+export type NewOrganisation = typeof organisations.$inferInsert;
+export type NewPartner = typeof partners.$inferInsert;

@@ -51,7 +51,7 @@ export async function cleanupTestDatabase() {
 
 export function createTestOrg(overrides = {}) {
     return {
-        id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+        id: 'f47ac10b-58cc-4372-a567-0e02b234d479',
         category: 'NGO',
         name: 'Test Organisation',
         url: 'https://test.org',
